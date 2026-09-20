@@ -265,3 +265,164 @@
     color: var(--primary-foreground);
   }
 }
+
+/* ── Landing motion ────────────────────────────────────────────────────────
+   One entrance for the hero, and state changes elsewhere. Everything here
+   stops under reduced motion, and the headline never stays hidden. */
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Graph-paper hero backdrop. Adapted from the CSS-only AnimatedGrid by
+   rmahammad on 21st.dev. Line colour is the border token, so the page still
+   defines no colour of its own. */
+.linegraph-grid {
+  mask-image: radial-gradient(ellipse at 50% 38%, #000 28%, transparent 78%);
+  -webkit-mask-image: radial-gradient(
+    ellipse at 50% 38%,
+    #000 28%,
+    transparent 78%
+  );
+}
+
+.linegraph-grid::before,
+.linegraph-grid::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--grid-major) * -1);
+}
+
+.linegraph-grid::before {
+  background-image:
+    linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  opacity: 0.55;
+  animation: linegraph-grid-drift 90s linear infinite;
+  will-change: background-position;
+}
+
+.linegraph-grid::after {
+  background-image:
+    linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: var(--grid-major) var(--grid-major);
+  opacity: 0.75;
+  animation: linegraph-grid-drift 90s linear infinite;
+  will-change: background-position;
+}
+
+@keyframes linegraph-grid-drift {
+  to {
+    background-position:
+      var(--grid-major) var(--grid-major),
+      var(--grid-major) var(--grid-major);
+  }
+}
+
+/* The headline lifts in word by word. */
+.linegraph-word {
+  display: inline-block;
+  animation: linegraph-word-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes linegraph-word-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.22em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Selection wash on the last phrase. The same blue the map uses when a file
+   is selected, at low opacity. */
+.linegraph-highlight {
+  padding-inline: 0.05em;
+  background-image: linear-gradient(
+    color-mix(in oklab, var(--selection) 12%, transparent),
+    color-mix(in oklab, var(--selection) 12%, transparent)
+  );
+  background-repeat: no-repeat;
+  background-position: 0 58%;
+  background-size: 0% 86%;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  animation: linegraph-highlight-in 620ms cubic-bezier(0.22, 1, 0.36, 1) 680ms
+    forwards;
+}
+
+.dark .linegraph-highlight {
+  background-image: linear-gradient(
+    color-mix(in oklab, var(--selection) 22%, transparent),
+    color-mix(in oklab, var(--selection) 22%, transparent)
+  );
+}
+
+@keyframes linegraph-highlight-in {
+  to {
+    background-size: 100% 86%;
+  }
+}
+
+.linegraph-reveal {
+  animation: linegraph-rise-in 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes linegraph-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* A running analysis is live; a queued or finished one is not. */
+.linegraph-live {
+  animation: linegraph-live-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes linegraph-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .linegraph-grid::before,
+  .linegraph-grid::after,
+  .linegraph-word,
+  .linegraph-highlight,
+  .linegraph-reveal,
+  .linegraph-live {
+    animation: none !important;
+  }
+
+  .linegraph-highlight {
+    background-size: 100% 86%;
+  }
+
+  .linegraph-word,
+  .linegraph-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
